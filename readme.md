@@ -38,3 +38,6 @@ Uses following libraries retrieved from their project repos by CPM.CMake
 - GLM, for math
 - IMGUI, only SDL3 GPU backend
 - DXC, from Vulkan SDK for Vulkan backend **or** from Windows SDK for DirectX backend
+
+## References
+- <https://github.com/ocornut/imgui/blob/master/examples/example_sdl3_sdlgpu3/main.cpp>
