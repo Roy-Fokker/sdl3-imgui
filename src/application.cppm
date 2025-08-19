@@ -250,6 +250,8 @@ void application::handle_sdl_events()
 {
 	while (SDL_PollEvent(&evt))
 	{
+		ImGui_ImplSDL3_ProcessEvent(&evt);
+
 		switch (evt.type)
 		{
 		case SDL_EVENT_QUIT:
@@ -306,10 +308,30 @@ void application::prepare_scene()
 	scn.depth_texture = make_depth_texture(gpu.get(), wnd.get());
 
 	scn.mvp.projection = make_perspective();
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+	auto imgui_io = ImGui::GetIO();
+	imgui_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+	ImGui::StyleColorsDark();
+	ImGui_ImplSDL3_InitForSDLGPU(wnd.get());
+	auto init_info = ImGui_ImplSDLGPU3_InitInfo {
+		.Device = gpu.get(),
+		.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(gpu.get(), wnd.get()),
+		.MSAASamples = SDL_GPU_SAMPLECOUNT_1,
+	};
+	ImGui_ImplSDLGPU3_Init(&init_info);
+
 }
 
 void application::update_state()
 {
+	ImGui_ImplSDLGPU3_NewFrame();
+	ImGui_ImplSDL3_NewFrame();
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
 }
 
 void application::draw()
@@ -362,5 +384,14 @@ void application::draw()
 		SDL_DrawGPUIndexedPrimitives(render_pass, scn.index_count, 1, 0, 0, 0);
 	}
 	SDL_EndGPURenderPass(render_pass);
+
+	ImGui::Render();
+	auto draw_data = ImGui::GetDrawData();
+	ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, cmd_buf);
+	color_target.load_op = SDL_GPU_LOADOP_LOAD;
+	auto imgui_render_pass = SDL_BeginGPURenderPass(cmd_buf, &color_target, 1, nullptr);
+	ImGui_ImplSDLGPU3_RenderDrawData(draw_data, cmd_buf, imgui_render_pass);
+	SDL_EndGPURenderPass(imgui_render_pass);
+
 	SDL_SubmitGPUCommandBuffer(cmd_buf);
 }

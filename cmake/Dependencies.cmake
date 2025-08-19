@@ -26,6 +26,7 @@ if (imgui_ADDED)
 			${imgui_SOURCE_DIR}/imgui_draw.cpp                        # Other backends are not going to get used
 			${imgui_SOURCE_DIR}/imgui_tables.cpp                      # so no point in including them.
 			${imgui_SOURCE_DIR}/imgui_widgets.cpp                     # 
+			${imgui_SOURCE_DIR}/imgui_demo.cpp                        # 
 			${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp          # Backend implementation of imgui using
 			${imgui_SOURCE_DIR}/backends/imgui_impl_sdlgpu3.cpp       # SDL3 GPU functionality
 	)

@@ -9,6 +9,7 @@
 #include <glm/glm.hpp> // Required for glm::vec3/4/mat4/etc
 #include <glm/ext.hpp> // Required for glm::perspective function
 
+#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlgpu3.h>
