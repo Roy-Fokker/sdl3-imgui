@@ -38,7 +38,7 @@ if (imgui_ADDED)
 	)
 
 	target_compile_definitions(imgui
-		PRIVATE
+		PUBLIC
 			IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 	)
 
