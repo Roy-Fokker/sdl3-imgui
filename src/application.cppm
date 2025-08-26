@@ -54,12 +54,14 @@ export namespace project
 			{
 				handle_sdl_events();
 
-				update_state();
+				update_scene();
 
 				draw();
 
 				clk.tick();
 			}
+
+			cleanup_scene();
 
 			std::println("Elapsed Time: {:.4f}s", clk.get_elapsed<clock::s>());
 
@@ -73,7 +75,8 @@ export namespace project
 
 		// Scene and Application State
 		void prepare_scene();
-		void update_state();
+		void update_scene();
+		void cleanup_scene();
 
 		// Show on screen
 		void draw();
@@ -317,16 +320,22 @@ void application::prepare_scene()
 
 	ImGui::StyleColorsDark();
 	ImGui_ImplSDL3_InitForSDLGPU(wnd.get());
-	auto init_info = ImGui_ImplSDLGPU3_InitInfo {
-		.Device = gpu.get(),
+	auto init_info = ImGui_ImplSDLGPU3_InitInfo{
+		.Device            = gpu.get(),
 		.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(gpu.get(), wnd.get()),
-		.MSAASamples = SDL_GPU_SAMPLECOUNT_1,
+		.MSAASamples       = SDL_GPU_SAMPLECOUNT_1,
 	};
 	ImGui_ImplSDLGPU3_Init(&init_info);
-
 }
 
-void application::update_state()
+void application::cleanup_scene()
+{
+	ImGui_ImplSDLGPU3_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
+	ImGui::DestroyContext();
+}
+
+void application::update_scene()
 {
 	ImGui_ImplSDLGPU3_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
@@ -388,7 +397,7 @@ void application::draw()
 	ImGui::Render();
 	auto draw_data = ImGui::GetDrawData();
 	ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, cmd_buf);
-	color_target.load_op = SDL_GPU_LOADOP_LOAD;
+	color_target.load_op   = SDL_GPU_LOADOP_LOAD;
 	auto imgui_render_pass = SDL_BeginGPURenderPass(cmd_buf, &color_target, 1, nullptr);
 	ImGui_ImplSDLGPU3_RenderDrawData(draw_data, cmd_buf, imgui_render_pass);
 	SDL_EndGPURenderPass(imgui_render_pass);
